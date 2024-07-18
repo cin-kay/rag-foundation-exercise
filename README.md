@@ -56,3 +56,12 @@ conda activate rag-foundation
 ```sh
 pip install -r requirements.txt
 ```
+
+### 5. **Fill your implementation**
+
+Search for `"Your code here"` line in the codebase which will lead you to where you should place your code.
+
+### 6. **Run Evaluation Script:**
+```sh
+TBD
+```
