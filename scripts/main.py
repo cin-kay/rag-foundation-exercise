@@ -100,17 +100,24 @@ def main(
     force_index: bool = False,
     print_context: bool = False,
     chunk_size: int = 200,
+    top_k: int = 5,
+    retrieval_only: bool = False,
 ):
+    # Generate doc string
     """
     Args:
-        data_path: Path to the data file.
-        output_path: Path to the output file.
+        data_path: Path to the qasper data file.
+        output_path: Path to save the predictions.
         mode: Mode of the vector store. Choose either `sparse` or `semantic`.
         force_index: Whether to force indexing the documents.
-
+        print_context: Whether to print the context.
+        chunk_size: Chunk size for splitting the documents.
+        top_k: Number of top k documents to retrieve.
+        retrieval_only: Whether to retrieve only.
     Returns:
         None
     """
+    # Load the data
     data_path = Path('data/qasper-test-v0.3.json')
     raw_data = json.load(open(data_path, "r", encoding="utf-8"))
 
@@ -145,19 +152,33 @@ def main(
             query = q["question"]
             question_ids.append(q["question_id"])
 
-            # NOTE: This is just testing the pipeline, so we will not implement the answer function
-            # However, it should look like this:
-            predicted_answer, context_list = rag_pipeline.answer(query)
+            # NOTE: If you just want to retrieve the top 5 relevant documents
+            # set retrieval_only=True
+            # Otherwise, it will answer the question
+            if retrieval_only:
+                result = rag_pipeline.retrieve(query, top_k=top_k)
+                context_list = [node.text for node in result.nodes]
 
-            # Just In Case. Print out the context list for each question
-            # if needed.
-            if print_context:
-                for i, context in enumerate(context_list):
-                    print(f"Relevent context {i + 1}:", context)
-                    print("\n\n")
+                if print_context:
+                    for i, context in enumerate(context_list):
+                        print(f"Relevent context {i + 1}:", context)
+                        print("\n\n")
 
-            predicted_evidences.append(context_list)
-            predicted_answers.append(predicted_answer)
+                predicted_evidences.append(context_list)
+                predicted_answers.append("")
+
+            else:
+                predicted_answer, context_list = rag_pipeline.answer(query, top_k=top_k)
+
+                # Just In Case. Print out the context list for each question
+                # if needed.
+                if print_context:
+                    for i, context in enumerate(context_list):
+                        print(f"Relevent context {i + 1}:", context)
+                        print("\n\n")
+
+                predicted_evidences.append(context_list)
+                predicted_answers.append(predicted_answer)
 
     # save the results
     with open(output_path, "w") as f:

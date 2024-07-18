@@ -64,16 +64,24 @@ Search for `"Your code here"` line in the codebase which will lead you to where 
 ### 6. **Run Script:**
 You should read the code in this repository carefully to understand the setup comprehensively.
 
-You can run the script below to get the results from your pre-build RAG, for example:
+You can run the script below to get the results from your pre-built RAG, for example:
 ```sh
-python -m scripts.main --data_path <your_data_path> --output_path predictions.jsonl --mode <your_mode> --force_index <True or False>
+python -m scripts.main \
+   --data_path <your_data_path> \
+   --output_path predictions.jsonl \
+   --mode <your_mode> \
+   --force_index <True or False> \
+   --retrieval_only True \
+   --top_k 5
 ```
-where: 
-   - `mode`: `sparse` or `semantic` (you can read code to understand more about this)
-   - `force_index`: `True` or `False` (True when you want to override the old vectorstore index, and False is when you don't want to)
-   - etc.
+where some arguments can be:
+   - `mode`: `sparse` or `semantic`
+   - `force_index`: `True` or `False` (True: override the old vectorstore index)
+   - `retrieval_only`: `True` or `False` (True: just get the retrieval contexts, answers are empty)
 
 ### 7. **Run Evaluation:**
 ```sh
-python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json
+python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json --retrieval_only True
 ```
+where some arguments can be:
+   - `retrieval_only`: `True` or `False` (True: just evaluate the retrieval contexts)
