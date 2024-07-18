@@ -3,6 +3,7 @@ from pathlib import Path
 
 import fire
 from langchain_openai import ChatOpenAI
+from llama_index.core import Document
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 
@@ -20,10 +21,7 @@ def prepare_data_nodes(documents: list, chunk_size: int = 200) -> list[TextNode]
         text_node: List of TextNode objects.
     """
     # Load data
-    temp_path = "data/temp.txt"
-    with open(temp_path, "w") as f:
-        f.write("\n\n".join(documents))
-    documents = SimpleDirectoryReader(input_files=[temp_path]).load_data()
+    documents = [Document(text=t) for t in documents]
 
     # Split the documents into nodes
     node_parser = SentenceSplitter(chunk_size=chunk_size)
