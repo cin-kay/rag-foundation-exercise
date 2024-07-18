@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -40,6 +41,7 @@ class BaseVectorStore(BaseModel):
             logger.warning(
                 f"Cannot find CSV file at `{self.saved_file}`, creating a new one..."
             )
+            os.makedirs(self.csv_file.parent, exist_ok=True)
             with open(self.csv_file, "w") as f:
                 f.write("id,text,embedding,metadata\n")
 
