@@ -156,7 +156,7 @@ def evaluate(gold, predicted):
 if __name__ == "__main__":
     """
     INSTRUCTION: Command to evaluate can be something like this:
-    python evaluate.py --predictions predictions.jsonl --gold qasper-test-v0.3.json
+    python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(

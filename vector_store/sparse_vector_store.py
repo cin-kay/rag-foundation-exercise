@@ -18,7 +18,9 @@ logger.add(
     format="<green>{time}</green> <level>{message}</level>",
 )
 
-TOKENIZER = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
+TOKENIZER = AutoTokenizer.from_pretrained(
+    "google-bert/bert-base-uncased", max_length=512, truncation=True
+)
 
 
 class SparseVectorStore(BaseVectorStore):

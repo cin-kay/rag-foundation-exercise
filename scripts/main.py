@@ -1,17 +1,17 @@
+import json
 from pathlib import Path
-import sys
-from llama_index.core.node_parser import SentenceSplitter
+
+import fire
+from langchain_openai import ChatOpenAI
 from llama_index.core import SimpleDirectoryReader
+from llama_index.core.node_parser import SentenceSplitter
+
 from vector_store.node import TextNode, VectorStoreQueryResult
 from vector_store.semantic_vector_store import SemanticVectorStore
 from vector_store.sparse_vector_store import SparseVectorStore
-import json
-from langchain_openai import ChatOpenAI
 
 
-def prepare_data_nodes(
-    documents: list, chunk_size: int = 512
-) -> list[TextNode]:
+def prepare_data_nodes(documents: list, chunk_size: int = 512) -> list[TextNode]:
     """
     Args:
         documents: List of documents.
@@ -24,13 +24,13 @@ def prepare_data_nodes(
     with open(temp_path, "w") as f:
         f.write("\n\n".join(documents))
     documents = SimpleDirectoryReader(input_files=[temp_path]).load_data()
-    
+
     # Split the documents into nodes
     node_parser = SentenceSplitter(chunk_size=chunk_size)
-    
+
     # Get the nodes from the documents
     nodes = node_parser.get_nodes_from_documents(documents)
-    
+
     # Prepare the nodes for the vector store
     text_node = [
         TextNode(id_=str(id_), text=node.text, metadata=node.metadata)
@@ -39,10 +39,7 @@ def prepare_data_nodes(
     return text_node
 
 
-def prepare_vector_store(documents: list, 
-                         mode: str, 
-                         force_index=False, 
-                         chunk_size=512):
+def prepare_vector_store(documents: list, mode: str, force_index=False, chunk_size=512):
     """
     Prepare the vector store with the given documents.
     Args:
@@ -70,8 +67,7 @@ def prepare_vector_store(documents: list,
         raise ValueError("Invalid mode. Choose either `sparse` or `semantic`.")
 
     if force_index:
-        nodes = prepare_data_nodes(documents=documents,
-                                   chunk_size=chunk_size)
+        nodes = prepare_data_nodes(documents=documents, chunk_size=chunk_size)
         vector_store.add(nodes)
 
     return vector_store
@@ -87,22 +83,42 @@ class RAGPipeline:
         query_result = self.vector_store.query(query, top_k=top_k)
         return query_result
 
-    def answer(self, query: str, context_list: list, top_k: int = 5):
-        # Generate openai code to answer the query based on the context list
-        # and the query
-        context = [context for context in context_list]
-        self.prompt_template = self.prompt_template.format(
-            query=query, context="\n\n".join(context)
+    def answer(self, query: str, top_k: int = 5):
+        # Generate openai code to answer the query
+        result = self.retrieve(query, top_k=top_k)
+        context_list = [node.text for node in result.nodes]
+        context = '\n\n'.join(context_list)
+
+        self.prompt_template = (
+            f"""Question: {query}\n\nGiven context: {context}\n\nAnswer:"""
         )
         response = self.model.invoke(self.prompt_template)
-        return response.content
+        return response.content, context_list
 
-if __name__ == "__main__":
+
+def main(
+    data_path: Path = Path("data/qasper-test-v0.3.json"),
+    output_path: Path = Path("predictions.jsonl"),
+    mode: str = "sparse",
+    force_index: bool = False,
+    print_context: bool = False,
+    chunk_size: int = 512,
+):
+    """
+    Args:
+        data_path: Path to the data file.
+        output_path: Path to the output file.
+        mode: Mode of the vector store. Choose either `sparse` or `semantic`.
+        force_index: Whether to force indexing the documents.
+
+    Returns:
+        None
+    """
     data_path = Path('data/qasper-test-v0.3.json')
     raw_data = json.load(open(data_path, "r", encoding="utf-8"))
-    
+
     question_ids, predicted_answers, predicted_evidences = [], [], []
-    
+
     # NOTE: qasper has many papers, each paper has multiple sections
     # we will loop through each paper, gather the full text of each section
     # and prepare the documents for the vector store
@@ -110,45 +126,60 @@ if __name__ == "__main__":
     for _, values in raw_data.items():
         # for each paper in qasper
         documents = []
-        
+
         for section in values['full_text']:
             # for each section in the paper
             documents += section["paragraphs"]
-        
+
         # initialize the vector store
         # and rag pipeline
         # Remember to force_index=True if you want to override the existing index
-        vector_store = prepare_vector_store(documents, mode="semantic", force_index=True)
-        
+        vector_store = prepare_vector_store(
+            documents, mode=mode, force_index=force_index, chunk_size=chunk_size
+        )
+
         # NOTE: Should design your own template
-        prompt_template = """Question: {query}\n\nGiven context: {context}\n\nAnswer:"""
-        
+        prompt_template = """Question: {}\n\nGiven context: {}\n\nAnswer:"""
+
         rag_pipeline = RAGPipeline(vector_store, prompt_template=prompt_template)
-        
+
         for q in values['qas']:
             # for each question in the paper
             query = q["question"]
             question_ids.append(q["question_id"])
-            result = rag_pipeline.retrieve(query)
-            
-            context_list = [node.text for node in result.nodes]
-            predicted_evidences.append(context_list)
-            
-            # Just In Case. Print out the context list for each question
-            # if needed.
-            for i, context in enumerate(context_list):
-                print(f"Relevent context {i+1}:", context)
-                print("\n\n")
-            
+
             # NOTE: This is just testing the pipeline, so we will not implement the answer function
             # However, it should look like this:
-            predicted_answer = rag_pipeline.answer(query, context_list=context_list)
+            predicted_answer, context_list = rag_pipeline.answer(query)
+
+            # Just In Case. Print out the context list for each question
+            # if needed.
+            if print_context:
+                for i, context in enumerate(context_list):
+                    print(f"Relevent context {i+1}:", context)
+                    print("\n\n")
+
+            predicted_evidences.append(context_list)
             predicted_answers.append(predicted_answer)
-        
+
         break
 
     # save the results
-    with open("predictions.jsonl", "w") as f:
-        for question_id, predicted_answer, predicted_evidence in zip(question_ids, predicted_answers, predicted_evidences):
-            f.write(json.dumps({"question_id": question_id, "predicted_answer": predicted_answer, "predicted_evidence": predicted_evidence}))
+    with open(output_path, "w") as f:
+        for question_id, predicted_answer, predicted_evidence in zip(
+            question_ids, predicted_answers, predicted_evidences
+        ):
+            f.write(
+                json.dumps(
+                    {
+                        "question_id": question_id,
+                        "predicted_answer": predicted_answer,
+                        "predicted_evidence": predicted_evidence,
+                    }
+                )
+            )
             f.write("\n")
+
+
+if __name__ == "__main__":
+    fire.Fire(main)
