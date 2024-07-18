@@ -1,4 +1,4 @@
-# flake8: noqa
+# flake8: noqa: F841
 import json
 import sys
 from multiprocessing import Pool, cpu_count
@@ -113,7 +113,7 @@ class SparseVectorStore(BaseVectorStore):
         # Calculate the inverse document frequency for a word
         # HINT: Use the formula provided in the BM25 algorithm and np.log()
         "Your code here"
-        idf_score = 0.0
+        idf_score = None
         return idf_score
 
     def _tokenize_text(self, corpus: List[str] | str):
@@ -150,7 +150,7 @@ class SparseVectorStore(BaseVectorStore):
             # calulate the score for each token in the query
             # HINT: use self.doc_freqs, self.idf, self.corpus_size, self.avgdl
             "Your code here"
-            cur_score = 0.0
+            cur_score = None
             score += cur_score
         return score
 
