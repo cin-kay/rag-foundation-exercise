@@ -153,7 +153,7 @@ def main(
             # if needed.
             if print_context:
                 for i, context in enumerate(context_list):
-                    print(f"Relevent context {i+1}:", context)
+                    print(f"Relevent context {i + 1}:", context)
                     print("\n\n")
 
             predicted_evidences.append(context_list)
