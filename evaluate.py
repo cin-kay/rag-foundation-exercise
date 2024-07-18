@@ -106,7 +106,7 @@ def get_answers_and_evidence(data, text_evidence_only):
     return answers_and_evidence
 
 
-def evaluate(gold, predicted):
+def evaluate(gold, predicted, retrieval_only=False):
     max_answer_f1s = []
     max_evidence_f1s = []
     max_answer_f1s_by_type = {
@@ -143,21 +143,23 @@ def evaluate(gold, predicted):
         max_evidence_f1s.append(max(evidence_f1s))
 
     mean = lambda x: sum(x) / len(x) if x else 0.0
-    return {
-        "Answer F1": mean(max_answer_f1s),
-        "Answer F1 by type": {
-            key: mean(value) for key, value in max_answer_f1s_by_type.items()
-        },
-        "Evidence F1": mean(max_evidence_f1s),
-        "Missing predictions": num_missing_predictions,
-    }
+
+    if not retrieval_only:
+        return {
+            "Answer F1": mean(max_answer_f1s),
+            "Answer F1 by type": {
+                key: mean(value) for key, value in max_answer_f1s_by_type.items()
+            },
+            "Evidence F1": mean(max_evidence_f1s),
+            "Missing predictions": num_missing_predictions,
+        }
+    else:
+        return {
+            "Evidence F1": mean(max_evidence_f1s),
+        }
 
 
 if __name__ == "__main__":
-    """
-    INSTRUCTION: Command to evaluate can be something like this:
-    python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json
-    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--predictions",
@@ -171,6 +173,11 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Test or dev set from the released dataset",
+    )
+    parser.add_argument(
+        "--retrieval_only",
+        required=True,
+        help="If set, the evaluator will just evaluate the retrieval scores",
     )
     parser.add_argument(
         "--text_evidence_only",
@@ -190,6 +197,8 @@ if __name__ == "__main__":
             "evidence": prediction_data["predicted_evidence"],
         }
     evaluation_output = evaluate(
-        gold_answers_and_evidence, predicted_answers_and_evidence
+        gold_answers_and_evidence,
+        predicted_answers_and_evidence,
+        retrieval_only=args.retrieval_only,
     )
     print(json.dumps(evaluation_output, indent=2))
