@@ -1,3 +1,4 @@
+# flake8: noqa
 import sys
 from typing import Dict, List, cast
 
@@ -69,21 +70,26 @@ class SemanticVectorStore(BaseVectorStore):
         """Get top nodes by similarity to the query."""
         qembed_np = np.array(query_embedding)
         dembed_np = np.array(doc_embeddings)
-        dproduct_arr = np.dot(dembed_np, qembed_np)
-        norm_arr = np.linalg.norm(qembed_np) * np.linalg.norm(
-            dembed_np, axis=1, keepdims=False
-        )
-        cos_sim_arr = dproduct_arr / norm_arr
 
-        sorted_tups = sorted(
-            [(cos_sim_arr[i], doc_ids[i]) for i in range(len(doc_ids))],
-            key=lambda t: t[0],
-            reverse=True,
-        )[:similarity_top_k]
+        # calculate the dot product of
+        # the query embedding with the document embeddings
+        # HINT: np.dot
+        "Your code here"
+        dproduct_arr = qembed_np, dembed_np
+        # calculate the cosine similarity
+        # by dividing the dot product by the norm
+        # HINT: np.linalg.norm
+        "Your code here"
+        cos_sim_arr = dproduct_arr
 
-        result_similarities = [s for s, _ in sorted_tups]
-        result_ids = [n for _, n in sorted_tups]
-        return result_similarities, result_ids
+        # get the indices of the top k similarities
+        "Your code here"
+        node_ids, similarities = cos_sim_arr
+
+        similarities = []
+        node_ids = []
+
+        return similarities, node_ids
 
     def query(self, query: str, top_k: int = 3) -> VectorStoreQueryResult:
         """Query similar nodes."""
