@@ -3,13 +3,13 @@ from pathlib import Path
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.readers.file.pymu_pdf import PyMuPDFReader
 
-from ..vector_store.node import TextNode, VectorStoreQueryResult
-from ..vector_store.semantic_vector_store import SemanticVectorStore
-from ..vector_store.sparse_vector_store import SparseVectorStore
+from vector_store.node import TextNode, VectorStoreQueryResult
+from vector_store.semantic_vector_store import SemanticVectorStore
+from vector_store.sparse_vector_store import SparseVectorStore
 
 
 def prepare_data_nodes(
-    pdf_path: str | Path = Path("./rag-foundation/data/llama2.pdf"),
+    pdf_path: str | Path = Path("data/llama2.pdf"),
 ) -> list[TextNode]:
     loader = PyMuPDFReader()
     documents = loader.load(file_path=pdf_path)
@@ -22,18 +22,20 @@ def prepare_data_nodes(
     return text_node
 
 
-def prepare_vector_store(pdf_path: str, mode: str, force_index=False):
+def prepare_vector_store(
+    pdf_path: str, mode: str, force_index=True
+) -> SparseVectorStore | SemanticVectorStore:
     if mode == "sparse":
         vector_store = SparseVectorStore(
             persist=True,
-            saved_file="rag-foundation/data/sparse.csv",
-            metadata_file="rag-foundation/data/sparse_metadata.json",
+            saved_file="data/sparse.csv",
+            metadata_file="data/sparse_metadata.json",
             force_index=force_index,
         )
     elif mode == "semantic":
         vector_store = SemanticVectorStore(
             persist=True,
-            saved_file="rag-foundation/data/dense.csv",
+            saved_file="data/dense.csv",
             force_index=force_index,
         )
     else:
@@ -60,8 +62,8 @@ class RAGPipeline:
 
 
 if __name__ == "__main__":
-    pdf_path = Path("./rag-foundation/data/llama2.pdf")
-    vector_store = prepare_vector_store(pdf_path, mode="semantic")
+    pdf_path = Path("data/llama2.pdf")
+    vector_store = prepare_vector_store(pdf_path, mode="sparse")
     prompt_template = """Question: {query} \nAnswer:"""
     rag_pipeline = RAGPipeline(vector_store, prompt_template=prompt_template)
 
