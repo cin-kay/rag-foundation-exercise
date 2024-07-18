@@ -19,7 +19,7 @@ logger.add(
 )
 
 TOKENIZER = AutoTokenizer.from_pretrained(
-    "google-bert/bert-base-uncased", max_length=512, truncation=True
+    "google-bert/bert-base-uncased", max_length=200, truncation=True
 )
 
 

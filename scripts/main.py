@@ -11,7 +11,7 @@ from vector_store.semantic_vector_store import SemanticVectorStore
 from vector_store.sparse_vector_store import SparseVectorStore
 
 
-def prepare_data_nodes(documents: list, chunk_size: int = 512) -> list[TextNode]:
+def prepare_data_nodes(documents: list, chunk_size: int = 200) -> list[TextNode]:
     """
     Args:
         documents: List of documents.
@@ -39,7 +39,7 @@ def prepare_data_nodes(documents: list, chunk_size: int = 512) -> list[TextNode]
     return text_node
 
 
-def prepare_vector_store(documents: list, mode: str, force_index=False, chunk_size=512):
+def prepare_vector_store(documents: list, mode: str, force_index=False, chunk_size=200):
     """
     Prepare the vector store with the given documents.
     Args:
@@ -102,7 +102,7 @@ def main(
     mode: str = "sparse",
     force_index: bool = False,
     print_context: bool = False,
-    chunk_size: int = 512,
+    chunk_size: int = 200,
 ):
     """
     Args:
@@ -161,8 +161,6 @@ def main(
 
             predicted_evidences.append(context_list)
             predicted_answers.append(predicted_answer)
-
-        break
 
     # save the results
     with open(output_path, "w") as f:
