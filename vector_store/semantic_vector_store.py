@@ -1,4 +1,5 @@
-# flake8: noqa
+# autoflake: off
+# flake8: noqa: F841
 import sys
 from typing import Dict, List, cast
 
@@ -75,19 +76,17 @@ class SemanticVectorStore(BaseVectorStore):
         # the query embedding with the document embeddings
         # HINT: np.dot
         "Your code here"
-        dproduct_arr = qembed_np, dembed_np
+        dproduct_arr = None
         # calculate the cosine similarity
         # by dividing the dot product by the norm
         # HINT: np.linalg.norm
         "Your code here"
-        cos_sim_arr = dproduct_arr
+        cos_sim_arr = None
 
         # get the indices of the top k similarities
         "Your code here"
-        node_ids, similarities = cos_sim_arr
-
-        similarities = []
-        node_ids = []
+        similarities = None
+        node_ids = None
 
         return similarities, node_ids
 
