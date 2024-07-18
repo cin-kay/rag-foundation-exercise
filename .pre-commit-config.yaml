@@ -47,7 +47,7 @@ repos:
         args:
           [
             "--in-place",
-            "--remove-unused-variables",
+            # "--remove-unused-variables",
             "--remove-all-unused-imports",
             "--ignore-init-module-imports",
           ]
