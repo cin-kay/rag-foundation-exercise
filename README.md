@@ -61,7 +61,19 @@ pip install -r requirements.txt
 
 Search for `"Your code here"` line in the codebase which will lead you to where you should place your code.
 
-### 6. **Run Evaluation Script:**
+### 6. **Run Script:**
+You should read the code in this repository carefully to understand the setup comprehensively.
+
+You can run the script below to get the results from your pre-build RAG, for example:
 ```sh
-TBD
+python -m scripts.main --data_path <your_data_path> --output_path predictions.jsonl --mode <your_mode> --force_index <True or False>
+```
+where: 
+   - `mode`: `sparse` or `semantic` (you can read code to understand more about this)
+   - `force_index`: `True` or `False` (True when you want to override the old vectorstore index, and False is when you don't want to)
+   - etc.
+
+### 7. **Run Evaluation:**
+```sh
+python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json
 ```
