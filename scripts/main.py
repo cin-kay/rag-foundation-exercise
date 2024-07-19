@@ -118,7 +118,6 @@ def main(
         None
     """
     # Load the data
-    data_path = Path('data/qasper-test-v0.3.json')
     raw_data = json.load(open(data_path, "r", encoding="utf-8"))
 
     question_ids, predicted_answers, predicted_evidences = [], [], []
