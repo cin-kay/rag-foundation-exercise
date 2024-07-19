@@ -174,7 +174,7 @@ class SparseVectorStore(BaseVectorStore):
         return VectorStoreQueryResult(
             nodes=nodes,
             similarities=[scores[doc_id] for doc_id in best_ids],
-            ids=[self.node_list[doc_id].id_ for doc_id in best_ids],
+            ids=[node.id_ for node in nodes],
         )
 
     def batch_query(
