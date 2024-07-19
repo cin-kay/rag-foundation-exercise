@@ -79,6 +79,14 @@ where some arguments can be:
    - `force_index`: `True` or `False` (True: override the old vectorstore index)
    - `retrieval_only`: `True` or `False` (True: just get the retrieval contexts, answers are empty)
 
+#### NOTE:
+To use LLM generation with RAG pipeline, you can use ChatOpenAI by supplying OPENAI_API_KEY in the enviroment variable (supposed you have one).
+If you don't have access to OpenAI API, use Groq free-tier instead:
+- Register an account at https://console.groq.com/keys (free)
+- Generate your API key
+- Assign env variable: `export GROQ_API_KEY=<YOUR API KEY>`
+- Run the main script without `--retrieval_only` to use LLM
+
 ### 7. **Run Evaluation:**
 ```sh
 python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json --retrieval_only True

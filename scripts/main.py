@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import fire
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from llama_index.core import Document
 from llama_index.core.node_parser import SentenceSplitter
 
@@ -74,7 +74,10 @@ class RAGPipeline:
     def __init__(self, vector_store: SemanticVectorStore, prompt_template: str):
         self.vector_store = vector_store
         self.prompt_template = prompt_template
-        self.model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+        self.model = ChatGroq(model="llama3-70b-8192", temperature=0)
+
+        # from langchain_openai import ChatOpenAI
+        # self.model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
     def retrieve(self, query: str, top_k: int = 5) -> VectorStoreQueryResult:
         query_result = self.vector_store.query(query, top_k=top_k)
@@ -118,7 +121,6 @@ def main(
         None
     """
     # Load the data
-    data_path = Path('data/qasper-test-v0.3.json')
     raw_data = json.load(open(data_path, "r", encoding="utf-8"))
 
     question_ids, predicted_answers, predicted_evidences = [], [], []
@@ -176,6 +178,9 @@ def main(
                     for i, context in enumerate(context_list):
                         print(f"Relevent context {i + 1}:", context)
                         print("\n\n")
+
+                    print("LLM Answer")
+                    print(predicted_answer)
 
                 predicted_evidences.append(context_list)
                 predicted_answers.append(predicted_answer)
