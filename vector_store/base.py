@@ -17,6 +17,7 @@ class BaseVectorStore(BaseModel):
     force_index: bool = False
     persist: bool = True
     node_dict: dict[str, BaseNode] = Field(default_factory=dict)
+    node_list: list[BaseNode] = Field(default_factory=list)
     saved_file: str = "rag-foundation/data/sematic_vectordb_nodes.csv"
     csv_file: Path = Path(saved_file)
 

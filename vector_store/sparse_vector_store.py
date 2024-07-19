@@ -51,6 +51,8 @@ class SparseVectorStore(BaseVectorStore):
             else:
                 self._initialize_bm25_assets()
 
+        self.node_list = list(self.node_dict.values())
+
     def _initialize_bm25_assets(self):
         """Initialize BM25 assets from the node dictionary."""
         self.corpus_size = 0
@@ -60,7 +62,7 @@ class SparseVectorStore(BaseVectorStore):
         self.doc_len = []
         self.nd = 0
 
-        corpus = self._tokenize_text([node.text for node in self.node_dict.values()])
+        corpus = self._tokenize_text([node.text for node in self.node_list])
         self._initialize(corpus)
         content = {
             "corpus_size": self.corpus_size,
@@ -167,12 +169,12 @@ class SparseVectorStore(BaseVectorStore):
             List[TextNode]: _description_
         """
         scores = self.get_scores(query)
-        doc_ids = np.argsort(scores)[::-1][:top_k]
-        nodes = [self.node_dict[str(doc_id)] for doc_id in doc_ids]
+        best_ids = np.argsort(scores)[::-1][:top_k]
+        nodes = [self.node_list[node_id] for node_id in best_ids]
         return VectorStoreQueryResult(
             nodes=nodes,
-            similarities=[scores[doc_id] for doc_id in doc_ids],
-            ids=doc_ids,
+            similarities=[scores[doc_id] for doc_id in best_ids],
+            ids=[self.node_list[doc_id].id_ for doc_id in best_ids],
         )
 
     def batch_query(
