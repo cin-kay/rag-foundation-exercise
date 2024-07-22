@@ -81,7 +81,11 @@ where some arguments can be:
 
 ### 7. **Run Evaluation:**
 ```sh
-python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json --retrieval_only True
+python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json --retrieval_only
 ```
-where some arguments can be:
-   - `retrieval_only`: `True` or `False` (True: just evaluate the retrieval contexts)
+$\rightarrow$ just evaluate the retrieval contexts.
+
+```sh
+python evaluate.py --predictions predictions.jsonl --gold data/qasper-test-v0.3.json
+```
+$\rightarrow$ evaluate both the retrieval contexts and answers.
