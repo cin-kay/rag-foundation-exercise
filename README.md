@@ -1,5 +1,5 @@
 # rag-foundation-exercise
-
+**_Week 4th exercise for Cinnamon Bootcamp_**
 ## Installation
 
 **Note:** Prefer `python=3.10.*`
