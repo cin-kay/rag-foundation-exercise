@@ -2,7 +2,7 @@
 **_Week 4th exercise for Cinnamon Bootcamp_**
 ## Installation
 
-**Note:** Prefer `python=3.10.*`
+**Note:** Prefer `python>=3.10,<3.13`
 
 ### 1. Clone repo (If you've already done this, jump to step 2)
 ```sh
